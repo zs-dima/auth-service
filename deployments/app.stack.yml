@@ -1,0 +1,105 @@
+version: "3.9"
+
+x-logging: &loki-logging
+  driver: loki
+  options:
+    max-size: "12m"
+    max-file: "5"
+    loki-url: "http://127.0.0.1:3100/loki/api/v1/push"
+    loki-retries: "5"
+    loki-batch-size: "400"
+    loki-pipeline-stages: |
+      - json:
+          expressions:
+            level: level
+            path: path
+            method: method
+            msg: msg
+      - labels:
+          msg: 
+          level:
+          path:
+          method:
+
+x-common: &default-keys
+  networks:
+    - public
+    - monitor
+  restart: always
+  security_opt:
+    - no-new-privileges:true
+  logging: *loki-logging
+
+x-deploy: &deploy-app
+  mode: replicated
+  replicas: 1
+  restart_policy:
+    condition: on-failure
+  placement:
+    constraints:
+      - node.labels.res == cpu
+  resources:
+    limits:
+      memory: 1024M
+    reservations:
+      memory: 128M
+
+services:
+  auth-service:
+    <<: *default-keys
+    hostname: auth-service
+    image: zs-dima/auth-service:latest
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - auth-service-data:/var/lib/keys
+    environment:
+      - SERVICE_ADDRESS=[::]:50051
+      - domain=$DOMAIN
+    deploy:
+      <<: *deploy-app
+      labels:
+        - org.label-schema.group=auth_app-staging
+        ####################################################################
+        # Auth service
+        ####################################################################
+        - traefik.enable=true
+        - traefik.http.routers.auth-service.entrypoints=https
+        - traefik.http.routers.auth-service.rule=Host(`auth-service.${DOMAIN}`)
+        - traefik.http.routers.auth-service.tls=true
+        - traefik.http.routers.auth-service.tls.certresolver=le
+
+        # Port traefik needs to route traffic to
+        - traefik.http.routers.auth-service.service=auth-service
+        - traefik.http.services.auth-service.loadbalancer.server.port=50051
+        - traefik.http.services.auth-service.loadbalancer.server.scheme=h2c
+
+        # Enable middleware
+        - traefik.http.routers.auth-service.middlewares=auth-service-grpc@swarm,auth-service-grpcweb@swarm,auth-service-ratelimit@swarm
+
+        # Middleware gRPC Web
+        - traefik.http.middlewares.auth-service-grpcweb.grpcweb.allowOrigins=*
+
+        # Middleware gRPC CORS
+        - traefik.http.middlewares.auth-service-grpc.headers.accessControlExposeHeaders=Grpc-Status,Grpc-Message,Grpc-Encoding,Grpc-Accept-Encoding
+        - traefik.http.middlewares.auth-service-grpc.headers.accessControlAllowMethods=*
+        - traefik.http.middlewares.auth-service-grpc.headers.accessControlAllowOriginList=*
+        - traefik.http.middlewares.auth-service-grpc.headers.accessControlAllowHeaders=*
+        - traefik.http.middlewares.auth-service-grpc.headers.accessControlAllowCredentials=true
+        - traefik.http.middlewares.auth-service-grpc.headers.accessControlMaxAge=1000
+        - traefik.http.middlewares.auth-service-grpc.headers.customRequestHeaders.te=trailers
+
+        # Middleware rate limit
+        - traefik.http.middlewares.auth-service-ratelimit.ratelimit.average=100
+        - traefik.http.middlewares.auth-service-ratelimit.ratelimit.burst=50
+        ####################################################################
+
+networks:
+  public:
+    external: true
+    attachable: true
+    driver: overlay
+  monitor:
+    external: false
+
+volumes:
+  auth-service-data:
