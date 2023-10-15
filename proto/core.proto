@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "./;proto";
+option csharp_namespace = "Proto.Core";
+
+import "google/protobuf/timestamp.proto";
+
+message UUID {
+	string value = 1;
+}
+
+message ResultReply {
+	bool result = 1;
+}
+
+// Name "DecimalValue" prevents conflict with C# Decimal type
+// Adapted from https://github.com/googleapis/googleapis/blob/master/google/type/money.proto
+message DecimalValue {
+
+	// The whole units of the amount.
+	int64 units = 1;
+
+	// Number of nano (10^-9) units of the amount.
+	// The value must be between -999,999,999 and +999,999,999 inclusive.
+	// If `units` is positive, `nanos` must be positive or zero.
+	// If `units` is zero, `nanos` can be positive, zero, or negative.
+	// If `units` is negative, `nanos` must be negative or zero.
+	// For example $-1.75 is represented as `units`=-1 and `nanos`=-750,000,000.
+	int32 nanos = 2;
+}
+
+message DateRange {
+	google.protobuf.Timestamp from_date = 1;
+	google.protobuf.Timestamp to_date = 2;
+}
+
+message FileBytes {
+	bytes data = 1;
+}
+
+message FileData {
+	string file_name = 1;
+	string file_hash = 2;
+	bytes data = 3;
+}

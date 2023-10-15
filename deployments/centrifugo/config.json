@@ -1,0 +1,41 @@
+{
+  "allowed_origins": [
+    "*"
+  ],
+  "token_hmac_secret_key": "00000",
+  "api_key": "00000",
+  "websocket_compression": true,
+  "websocket_compression_min_size": 1500,
+  "websocket_compression_level": 3,
+  "grpc_api": true,
+  "grpc_api_address": "",
+  "grpc_api_port": 10000,
+  "grpc_api_reflection": false,
+  "admin": true,
+  "admin_password": "00000",
+  "admin_secret": "00000",
+  "allow_subscribe_for_client": true,
+  "allow_publish_for_client": true,
+  "allow_publish_for_subscriber": true,
+  "allow_presence_for_subscriber": true,
+  "allow_presence_for_client": true,
+  "presence": true,
+  "namespaces": [
+    {
+      "name": "eventbus",
+      "join_leave": true,
+      "presence": true,
+      "allow_publish_for_subscriber": true,
+      "allow_subscribe_for_client": true
+    }
+  ],
+  "admin_handler_prefix": "",
+  "api_handler_prefix": "/api",
+  "prometheus_handler_prefix": "/metrics",
+  "health_handler_prefix": "/health",
+  "swagger_handler_prefix": "/swagger",
+  "http3": false,
+  "health": true,
+  "prometheus": false,
+  "debug": true
+}

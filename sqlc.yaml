@@ -1,0 +1,28 @@
+version: "2"
+sql:
+  - engine: postgresql
+    schema: db/schema.sql
+    queries: db/query.sql
+    gen:
+      go:
+        package: auth_db
+        sql_package: pgx/v5
+        out: internal/gen/db
+        emit_prepared_queries: true
+        overrides:
+          - db_type: "uuid"
+            go_type: "github.com/google/uuid.UUID"
+          - db_type: "uuid"
+            go_type: "github.com/google/uuid.NullUUID"
+            nullable: true
+          - db_type: "pg_catalog.interval"
+            go_type: "time.Duration"
+          - db_type: "pg_catalog.interval"
+            # It could be the simpler `go_type: "*time.Duration"`, but that outputs double points `**time.Duration`.
+            go_type:
+              import: "time"
+              type: "Duration"
+              pointer: true
+            nullable: true
+    rules:
+      - sqlc/db-prepare

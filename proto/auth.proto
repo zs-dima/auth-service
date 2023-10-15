@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "./;proto";
+option csharp_namespace = "Proto.Auth";
+
+import "core.proto";
+
+import "google/protobuf/empty.proto";
+
+service AuthService {
+  rpc SignIn(SignInRequest) returns (AuthInfo);
+  rpc SignOut(google.protobuf.Empty) returns (core.ResultReply);
+  rpc RefreshTokens(RefreshTokenRequest) returns (RefreshTokenReply); 
+  rpc ValidateCredentials(google.protobuf.Empty) returns (core.ResultReply);
+
+  rpc ResetPassword(ResetPasswordRequest) returns (core.ResultReply); 
+  rpc SetPassword(SetPasswordRequest) returns (core.ResultReply);
+
+  rpc LoadUsersInfo(google.protobuf.Empty) returns (stream UserInfo);
+  rpc LoadUserAvatar(LoadUserAvatarRequest) returns (stream UserAvatar);
+  rpc LoadUsers(UserId) returns (stream User);
+  rpc CreateUser(CreateUserRequest) returns (core.ResultReply);
+  rpc UpdateUser(UpdateUserRequest) returns (core.ResultReply);
+  rpc SaveUserPhoto(UserPhoto) returns (core.ResultReply);
+}
+
+message ResetPasswordRequest {
+	string email = 1;
+}
+
+message SetPasswordRequest {
+	core.UUID user_id = 1;
+	string email = 2;
+	string password = 3;
+}
+
+message LoadUserAvatarRequest {
+	repeated core.UUID user_id = 1;
+}
+
+message SignInRequest {
+	string email = 1;
+	string password = 2;
+	core.UUID installation_id = 3;
+	DeviceInfo device_info = 4;	
+}
+
+message DeviceInfo {
+	core.UUID id = 1;
+	string model = 2;
+	string name = 3;
+	OsInfo os_info = 4;
+}
+
+message OsInfo {
+	OS os = 1;
+	string version = 2;
+}
+
+enum OS {
+	fuchsia = 0;
+	linux = 1;
+	macOS = 2;
+	windows = 3;
+	iOS = 4;
+	android = 5;
+	unknown = 6;
+}
+
+message RefreshTokenRequest {
+	string refresh_token = 1;
+}
+
+message RefreshTokenReply {
+	string refresh_token = 1;
+	string access_token = 2;
+}
+
+message AuthInfo {
+	core.UUID user_id = 1;
+	string user_name = 2;
+	UserRole user_role = 3;
+	optional string blurhash = 4;
+	string refresh_token = 5;
+	string access_token = 6;
+}
+
+enum UserRole {
+	administrator = 0;
+	user = 1;
+}
+
+message UserInfo {
+	core.UUID id = 1;
+	string name = 2;
+	string email = 3;
+	UserRole role = 4;
+	optional string blurhash = 5;	
+	bool deleted = 6;
+}
+
+message User {
+	core.UUID id = 1;
+	string name = 2;
+	string email = 3;
+	UserRole role = 4;
+	optional string blurhash = 5;
+	bool deleted = 6; 
+}
+
+message UserPhoto {
+	core.UUID user_id = 1;
+	optional bytes photo = 2;
+}
+
+message UserAvatar {
+	core.UUID user_id = 1;
+	optional bytes avatar = 2;
+}
+
+message UserId {
+	core.UUID id = 1;
+}
+
+message CreateUserRequest {
+	core.UUID id = 1;
+	string name = 2;
+	string email = 3;
+	string password = 4;
+	UserRole role = 5;
+	bool deleted = 6;
+}
+
+message UpdateUserRequest {
+	core.UUID id = 1;
+	string name = 2;
+	string email = 3;
+	UserRole role = 4;
+	bool deleted = 5;
+}
+
