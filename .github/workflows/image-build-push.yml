@@ -56,6 +56,6 @@ jobs:
           push: true
           context: .
           file: ./deployments/Dockerfile
-          tags: zs-dima/auth-service:${{ env.APP_ENVIRONMENT == 'production' && 'stable' || 'latest' }}
+          tags: zsdima/auth-service:${{ env.APP_ENVIRONMENT == 'production' && 'stable' || 'latest' }}
           build-args: |
             "APP_ENVIRONMENT=${{ env.APP_ENVIRONMENT }}"

@@ -32,39 +32,41 @@ type DbConfig struct {
 }
 
 func NewConfig() (*Config, error) {
-	grpcAddress := os.Getenv("grpc_address")
+
+	grpcAddress := os.Getenv("GRPC_ADDRESS")
 	if grpcAddress == "" {
-		return nil, fmt.Errorf("missing environment variable: grpc_address")
+		return nil, fmt.Errorf("missing environment variable: GRPC_ADDRESS")
 	}
-	grpcApiKey := os.Getenv("grpc_api_key")
-	_, grpcApiReflection := os.LookupEnv("grpc_api_reflection")
 
-	httpAddress := os.Getenv("http_address")
+	grpcApiKey := os.Getenv("GRPC_API_KEY")
+	_, grpcApiReflection := os.LookupEnv("GRPC_API_REFLECTION")
+
+	httpAddress := os.Getenv("HTTP_ADDRESS")
 	if httpAddress == "" {
-		return nil, fmt.Errorf("missing environment variable: http_address")
+		return nil, fmt.Errorf("missing environment variable: HTTP_ADDRESS")
 	}
-	httpApiKey := os.Getenv("http_api_key")
+	httpApiKey := os.Getenv("HTTP_API_KEY")
 
-	jwtSecretKey := os.Getenv("jwt_secret_key")
+	jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
 	if jwtSecretKey == "" {
-		return nil, fmt.Errorf("missing environment variable: jwt_secret_key")
+		return nil, fmt.Errorf("missing environment variable: JWT_SECRET_KEY")
 	}
 
 	_, opentelemetry := os.LookupEnv("opentelemetry")
 
-	dbUri := tool.GetFileValue("db_uri")
+	dbUri := tool.GetFileValue("DB_URI")
 	if dbUri == "" {
-		return nil, fmt.Errorf("missing environment variable: db_uri")
+		return nil, fmt.Errorf("missing environment variable: DB_URI")
 	}
 
-	dbPassword := tool.GetFileValue("db_password")
+	dbPassword := tool.GetFileValue("DB_PASSWORD")
 	if dbPassword == "" {
-		return nil, fmt.Errorf("missing environment variable: db_password")
+		return nil, fmt.Errorf("missing environment variable: DB_PASSWORD")
 	}
 
-	logLevel := strings.ToUpper(os.Getenv("log_level"))
-	_, human := os.LookupEnv("human_logging")
-	logFile := os.Getenv("log_file")
+	logLevel := strings.ToUpper(os.Getenv("LOG_LEVEL"))
+	_, human := os.LookupEnv("HUMAN_LOGGING")
+	logFile := os.Getenv("LOG_FILE")
 
 	return &Config{
 		GrpcAddress:       grpcAddress,

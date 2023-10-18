@@ -24,6 +24,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
@@ -36,11 +37,6 @@ import (
 
 	pb "github.com/zs-dima/auth-service/internal/gen/proto"
 )
-
-// go mod tidy
-// go mod vendor
-// go get && go build
-// go get github.com/spf13/viper@none
 
 func main() {
 	config, err := config.NewConfig()
@@ -80,6 +76,7 @@ func main() {
 
 	// Set up gRPC server options
 	var grpcOpts = []grpc.ServerOption{
+		// Limit message size to 32 MB, gRPC effective for smaller messages compared to HTTP
 		grpc.MaxRecvMsgSize(32 * 1024 * 1024),
 		grpc.MaxSendMsgSize(32 * 1024 * 1024),
 		grpc.ChainStreamInterceptor(

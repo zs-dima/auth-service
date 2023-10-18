@@ -48,7 +48,7 @@ services:
   auth-service:
     <<: *default-keys
     hostname: auth-service
-    image: zs-dima/auth-service:latest
+    image: zsdima/auth-service:latest
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - auth-service-data:/var/lib/keys
